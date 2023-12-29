@@ -3,19 +3,13 @@ package br.com.devensina.alugacarros.carro.domain;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-
 import br.com.devensina.alugacarros.carro.application.api.CarroRequest;
+import javax.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import javax.persistence.Column;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
@@ -48,5 +42,40 @@ public class Carro {
 		this.placa = carroRequest.getPlaca();
 		this.ano = carroRequest.getAno();
 		this.valorDiaria = carroRequest.getValorDiaria();
+	}
+
+	public void atualizarCarro(Carro carro){
+		this.categoria = carro.getCategoria();
+		this.tipo = carro.getTipo();
+		this.marca = carro.getMarca();
+		this.descricao = carro.getDescricao();
+		this.placa = carro.getPlaca();
+		this.ano = carro.getAno();
+		this.valorDiaria = carro.getValorDiaria();
+	}
+
+	public void  alugarCarro(LocalDate dataHoraDevolucao){
+		if(!this.alugado) {
+			this.alugado = true;
+			this.dataHoraDoAluguel = LocalDateTime.now();
+			this.dataHoraDaDevolucao = dataHoraDevolucao;
+		}
+	}
+
+	public void devolverCarro(){
+		LocalDate dataDevolucaoAtual = LocalDate.now();
+		if(this.dataHoraDaDevolucao != null && this.dataHoraDaDevolucao.equals(dataDevolucaoAtual)){
+			this.alugado = false;
+			this.dataHoraDaDevolucao = null;
+			this.dataHoraDoAluguel = null ;
+			this.atraso = 0;
+		}
+		if(this.dataHoraDaDevolucao != null && !this.dataHoraDaDevolucao.equals(dataDevolucaoAtual)){
+			long atraso = dataDevolucaoAtual.toEpochDay() - this.dataHoraDaDevolucao.toEpochDay();
+			this.atraso = (int) atraso;
+			this.alugado = false;
+			this.dataHoraDaDevolucao = null;
+			this.dataHoraDoAluguel = null ;
+		}
 	}
 }
